@@ -1,0 +1,1 @@
+# extrair-metadata-foto
