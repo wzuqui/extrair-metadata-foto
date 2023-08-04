@@ -1,9 +1,22 @@
+import 'devextreme/dist/css/dx.common.css';
+import 'devextreme/dist/css/dx.light.css';
+import 'leaflet/dist/leaflet.css';
+import './style.css';
+
 import * as L from 'leaflet';
 import EXIF = require('exif-js');
+import DxConfig from 'devextreme/core/config';
+import { loadMessages, locale } from 'devextreme/localization';
+import DxForm from 'devextreme/ui/form';
 
-import 'leaflet/dist/leaflet.css';
+import { messages } from './devextreme-pt';
 import { Metadata } from './metadata.type';
-import './style.css';
+
+loadMessages(messages);
+locale('pt-BR');
+DxConfig({
+  forceIsoDateParsing: false,
+});
 
 const appDiv: HTMLElement = document.getElementById('app');
 {
@@ -16,11 +29,20 @@ const appDiv: HTMLElement = document.getElementById('app');
     thumbnail.style.height = '200px';
     thumbnail.style.objectFit = 'cover';
   }
+  const form_container = document.createElement('div');
+  let form: DxForm;
   const input: HTMLInputElement = document.createElement('input');
   {
     input.type = 'file';
     input.multiple = false;
     input.onchange = acaoOnChange(input, (data: Metadata, raw: ArrayBuffer) => {
+      if (form === undefined) {
+        form = new DxForm(form_container, {
+          formData: data,
+          labelLocation: 'left',
+          colCount: 2,
+        });
+      }
       const blob = new Blob([raw], { type: data.SceneType });
       const urlCreator = window.URL || window.webkitURL;
       const imageUrl = urlCreator.createObjectURL(blob);
@@ -42,7 +64,6 @@ const appDiv: HTMLElement = document.getElementById('app');
           data.GPSLongitude[2],
           data.GPSLongitudeRef
         );
-
         marker = new L.Marker(L.latLng(latitude, longitude), {
           icon: L.icon({
             iconSize: [25, 41],
@@ -62,6 +83,7 @@ const appDiv: HTMLElement = document.getElementById('app');
   appDiv.appendChild(input);
   appDiv.appendChild(mapa_container);
   appDiv.appendChild(thumbnail);
+  appDiv.appendChild(form_container);
   appDiv.appendChild(pre);
 }
 
